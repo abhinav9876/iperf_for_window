@@ -31,6 +31,24 @@
 #include <errno.h>
 #ifdef _WIN32
  #include <winsock2.h>
+ #include<Winsock.h>
+ typedef struct pollfd {
+  SOCKET fd;
+  SHORT  events;
+  SHORT  revents;
+} WSAPOLLFD, *PWSAPOLLFD, *LPWSAPOLLFD;
+
+typedef struct addrinfo {
+  int             ai_flags;
+  int             ai_family;
+  int             ai_socktype;
+  int             ai_protocol;
+  size_t          ai_addrlen;
+  char            *ai_canonname;
+  struct sockaddr  *ai_addr;
+  struct addrinfo  *ai_next;
+} ADDRINFOA, *PADDRINFOA;
+
 
 #else
  #include <sys/socket.h>
@@ -88,14 +106,15 @@ timeout_connect(int s, const struct sockaddr *name, socklen_t namelen,
 
 	flags = 0;
 	if (timeout != -1) {
-		flags = fcntl(s, F_GETFL, 0);
-		if (fcntl(s, F_SETFL, flags | O_NONBLOCK) == -1)
-			return -1;
+	//	flags = fcntl(s, F_GETFL, 0);
+  	flags = fcntl(s, 10, 0);
+//		if (fcntl(s, F_SETFL, flags | O_NONBLOCK) == -1)
+//			return -1;
 	}
 
-	if ((ret = connect(s, name, namelen)) != 0 && errno == EINPROGRESS) {
+	if ((ret = connect(s, name, namelen)) != 0){// && errno == EINPROGRESS) {
 		pfd.fd = s;
-		pfd.events = POLLOUT;
+		//pfd.events = POLLOUT;
 		if ((ret = poll(&pfd, 1, timeout)) == 1) {
 			optlen = sizeof(optval);
 			if ((ret = getsockopt(s, SOL_SOCKET, SO_ERROR,
@@ -104,14 +123,14 @@ timeout_connect(int s, const struct sockaddr *name, socklen_t namelen,
 				ret = optval == 0 ? 0 : -1;
 			}
 		} else if (ret == 0) {
-			errno = ETIMEDOUT;
+			//errno = ETIMEDOUT;
 			ret = -1;
 		} else
 			ret = -1;
 	}
 
-	if (timeout != -1 && fcntl(s, F_SETFL, flags) == -1)
-		ret = -1;
+	//if (timeout != -1 && fcntl(s, F_SETFL, flags) == -1)
+	//	ret = -1;
 
 	return (ret);
 }
@@ -183,15 +202,15 @@ netdial(int domain, int proto, char *local, int local_port, char *server, int po
 	/* IPv6 */
 	else if (server_res->ai_family == AF_INET6) {
 	    struct sockaddr_in6 *lcladdr = (struct sockaddr_in6 *) &lcl;
-	    lcladdr->sin6_family = AF_INET6;
-	    lcladdr->sin6_port = htons(local_port);
-	    lcladdr->sin6_addr = in6addr_any;
-	    addrlen = sizeof(struct sockaddr_in6);
+	    //lcladdr->sin6_family = AF_INET6;
+	    //lcladdr->sin6_port = htons(local_port);
+	   // lcladdr->sin6_addr = in6addr_any;
+	   // addrlen = sizeof(struct sockaddr_in6);
 	}
 	/* Unknown protocol */
 	else {
-	    errno = EAFNOSUPPORT;
-            return -1;
+	  //  errno = EAFNOSUPPORT;
+    //        return -1;
 	}
 
         if (bind(s, (struct sockaddr *) &lcl, addrlen) < 0) {
@@ -204,7 +223,7 @@ netdial(int domain, int proto, char *local, int local_port, char *server, int po
     }
 
     ((struct sockaddr_in *) server_res->ai_addr)->sin_port = htons(port);
-    if (timeout_connect(s, (struct sockaddr *) server_res->ai_addr, server_res->ai_addrlen, timeout) < 0 && errno != EINPROGRESS) {
+    if (timeout_connect(s, (struct sockaddr *) server_res->ai_addr, server_res->ai_addrlen, timeout) < 0){// && errno != EINPROGRESS) {
 	saved_errno = errno;
 	close(s);
 	freeaddrinfo(server_res);
@@ -246,7 +265,7 @@ netannounce(int domain, int proto, char *local, int port)
 	hints.ai_family = domain;
     }
     hints.ai_socktype = proto;
-    hints.ai_flags = AI_PASSIVE;
+  //  hints.ai_flags = AI_PASSIVE;
     if (getaddrinfo(local, portstr, &hints, &res) != 0)
         return -1;
 
@@ -326,9 +345,9 @@ Nread(int fd, char *buf, size_t count, int prot)
     while (nleft > 0) {
         r = read(fd, buf, nleft);
         if (r < 0) {
-            if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
-                break;
-            else
+          //  if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
+          //      break;
+          //  else
                 return NET_HARDERROR;
         } else if (r == 0)
             break;
@@ -357,11 +376,11 @@ Nwrite(int fd, const char *buf, size_t count, int prot)
 		case EINTR:
 		case EAGAIN:
 #if (EAGAIN != EWOULDBLOCK)
-		case EWOULDBLOCK:
+//		case EWOULDBLOCK:
 #endif
 		return count - nleft;
 
-		case ENOBUFS:
+	//	case ENOBUFS:
 		return NET_SOFTERROR;
 
 		default:
@@ -460,20 +479,23 @@ setnonblocking(int fd, int nonblocking)
 {
     int flags, newflags;
 
-    flags = fcntl(fd, F_GETFL, 0);
+  //  flags = fcntl(fd, F_GETFL, 0);
+  flags = fcntl(fd, 10, 0);
     if (flags < 0) {
         perror("fcntl(F_GETFL)");
         return -1;
     }
     if (nonblocking)
-	newflags = flags | (int) O_NONBLOCK;
-    else
-	newflags = flags & ~((int) O_NONBLOCK);
+    {
+	//newflags = flags | (int) O_NONBLOCK;
+}else{
+//	newflags = flags & ~((int) O_NONBLOCK);
+}
     if (newflags != flags)
-	if (fcntl(fd, F_SETFL, newflags) < 0) {
-	    perror("fcntl(F_SETFL)");
-	    return -1;
-	}
+//	if (fcntl(fd, F_SETFL, newflags) < 0) {
+//	    perror("fcntl(F_SETFL)");
+//	    return -1;
+//	}
     return 0;
 }
 

@@ -385,6 +385,7 @@ static unsigned char* ensure(printbuffer * const p, size_t needed)
     }
 
     if (p->hooks.reallocate != NULL)
+
     {
         /* reallocate with realloc if available */
         newbuffer = (unsigned char*)p->hooks.reallocate(p->buffer, newsize);

@@ -691,8 +691,8 @@ iperf_on_connect(struct iperf_test *test)
 	    port = ntohs(sa_inP->sin_port);
         } else {
 	    sa_in6P = (struct sockaddr_in6 *) &sa;
-            inet_ntop(AF_INET6, &sa_in6P->sin6_addr, ipr, sizeof(ipr));
-	    port = ntohs(sa_in6P->sin6_port);
+          //  inet_ntop(AF_INET6, &sa_in6P->sin6_addr, ipr, sizeof(ipr));
+	   // port = ntohs(sa_in6P->sin6_port);
         }
 	mapped_v4_to_regular_v4(ipr);
 	if (test->json_output)
@@ -1651,7 +1651,7 @@ send_parameters(struct iperf_test *test)
         cJSON_AddStringToObject(j, "authtoken", test->settings->authtoken);
     }
 #endif // HAVE_SSL
-	cJSON_AddStringToObject(j, "client_version", IPERF_VERSION);
+	//cJSON_AddStringToObject(j, "client_version", IPERF_VERSION);
 
 	if (test->debug) {
 	    printf("send_parameters:\n%s\n", cJSON_Print(j));
@@ -2102,19 +2102,19 @@ connect_msg(struct iperf_stream *sp)
     int lport, rport;
 
     if (getsockdomain(sp->socket) == AF_INET) {
-        inet_ntop(AF_INET, (void *) &((struct sockaddr_in *) &sp->local_addr)->sin_addr, ipl, sizeof(ipl));
+        //inet_ntop(AF_INET, (void *) &((struct sockaddr_in *) &sp->local_addr)->sin_addr, ipl, sizeof(ipl));
 	mapped_v4_to_regular_v4(ipl);
-        inet_ntop(AF_INET, (void *) &((struct sockaddr_in *) &sp->remote_addr)->sin_addr, ipr, sizeof(ipr));
+      //  inet_ntop(AF_INET, (void *) &((struct sockaddr_in *) &sp->remote_addr)->sin_addr, ipr, sizeof(ipr));
 	mapped_v4_to_regular_v4(ipr);
-        lport = ntohs(((struct sockaddr_in *) &sp->local_addr)->sin_port);
-        rport = ntohs(((struct sockaddr_in *) &sp->remote_addr)->sin_port);
+      //  lport = ntohs(((struct sockaddr_in *) &sp->local_addr)->sin_port);
+      //  rport = ntohs(((struct sockaddr_in *) &sp->remote_addr)->sin_port);
     } else {
-        inet_ntop(AF_INET6, (void *) &((struct sockaddr_in6 *) &sp->local_addr)->sin6_addr, ipl, sizeof(ipl));
+        //inet_ntop(AF_INET6, (void *) &((struct sockaddr_in6 *) &sp->local_addr)->sin6_addr, ipl, sizeof(ipl));
 	mapped_v4_to_regular_v4(ipl);
-        inet_ntop(AF_INET6, (void *) &((struct sockaddr_in6 *) &sp->remote_addr)->sin6_addr, ipr, sizeof(ipr));
+      //  inet_ntop(AF_INET6, (void *) &((struct sockaddr_in6 *) &sp->remote_addr)->sin6_addr, ipr, sizeof(ipr));
 	mapped_v4_to_regular_v4(ipr);
-        lport = ntohs(((struct sockaddr_in6 *) &sp->local_addr)->sin6_port);
-        rport = ntohs(((struct sockaddr_in6 *) &sp->remote_addr)->sin6_port);
+      //  lport = ntohs(((struct sockaddr_in6 *) &sp->local_addr)->sin6_port);
+      //  rport = ntohs(((struct sockaddr_in6 *) &sp->remote_addr)->sin6_port);
     }
 
     if (sp->test->json_output)
@@ -3384,13 +3384,13 @@ iperf_new_stream(struct iperf_test *test, int s)
         free(sp);
         return NULL;
     }
-    sp->buffer = (char *) mmap(NULL, test->settings->blksize, PROT_READ|PROT_WRITE, MAP_PRIVATE, sp->buffer_fd, 0);
-    if (sp->buffer == MAP_FAILED) {
-        i_errno = IECREATESTREAM;
-        free(sp->result);
-        free(sp);
-        return NULL;
-    }
+    //sp->buffer = (char *) mmap(NULL, test->settings->blksize, PROT_READ|PROT_WRITE, MAP_PRIVATE, sp->buffer_fd, 0);
+    //if (sp->buffer == MAP_FAILED) {
+    //    i_errno = IECREATESTREAM;
+    //    free(sp->result);
+    //    free(sp);
+    //    return NULL;
+    //}
 
     /* Set socket */
     sp->socket = s;
@@ -3440,15 +3440,15 @@ iperf_init_stream(struct iperf_stream *sp, struct iperf_test *test)
     int opt;
 
     len = sizeof(struct sockaddr_storage);
-    if (getsockname(sp->socket, (struct sockaddr *) &sp->local_addr, &len) < 0) {
-        i_errno = IEINITSTREAM;
-        return -1;
-    }
+    //if (getsockname(sp->socket, (struct sockaddr *) &sp->local_addr, &len) < 0) {
+    //    i_errno = IEINITSTREAM;
+    //    return -1;
+    //}
     len = sizeof(struct sockaddr_storage);
-    if (getpeername(sp->socket, (struct sockaddr *) &sp->remote_addr, &len) < 0) {
-        i_errno = IEINITSTREAM;
-        return -1;
-    }
+  //  if (getpeername(sp->socket, (struct sockaddr *) &sp->remote_addr, &len) < 0) {
+  //      i_errno = IEINITSTREAM;
+  //      return -1;
+//    }
 
     /* Set IP TOS */
     if ((opt = test->settings->tos)) {
@@ -3463,10 +3463,10 @@ iperf_init_stream(struct iperf_stream *sp, struct iperf_test *test)
             return -1;
 #endif
         } else {
-            if (setsockopt(sp->socket, IPPROTO_IP, IP_TOS, &opt, sizeof(opt)) < 0) {
-                i_errno = IESETTOS;
-                return -1;
-            }
+          //  if (setsockopt(sp->socket, IPPROTO_IP, IP_TOS, &opt, sizeof(opt)) < 0) {
+        //        i_errno = IESETTOS;
+      //          return -1;
+    //        }
         }
     }
 
@@ -3567,7 +3567,7 @@ iperf_catch_sigend(void (*handler)(int))
 {
     signal(SIGINT, handler);
     signal(SIGTERM, handler);
-    signal(SIGHUP, handler);
+  //  signal(SIGHUP, handler);
 }
 
 /**

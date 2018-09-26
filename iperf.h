@@ -209,8 +209,8 @@ struct iperf_stream
     int       omitted_cnt_error;
     uint64_t  target;
 
-    struct sockaddr_storage local_addr;
-    struct sockaddr_storage remote_addr;
+  //  struct sockaddr_storage local_addr;
+  //  struct sockaddr_storage remote_addr;
 
     int       (*rcv) (struct iperf_stream * stream);
     int       (*snd) (struct iperf_stream * stream);

@@ -34,14 +34,16 @@
  #include <winsock2.h>
 #else
  #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <sys/select.h>
 #endif
 #include <sys/types.h>
-#include <netinet/in.h>
+
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
 #include <sys/time.h>
-#include <sys/select.h>
+
 
 #include "iperf.h"
 #include "iperf_api.h"

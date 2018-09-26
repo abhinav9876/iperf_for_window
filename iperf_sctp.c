@@ -31,16 +31,20 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#ifdef _WIN32 
+#ifdef _WIN32
  #include <winsock2.h>
+
 #else
- #include <sys/socket.h>
-#endif
-#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <sys/time.h>
 #include <sys/select.h>
+
+
+#endif
+#include <sys/types.h>
+
+#include <sys/time.h>
 
 #ifdef HAVE_NETINET_SCTP_H
 #include <netinet/sctp.h>
@@ -85,7 +89,7 @@ iperf_sctp_recv(struct iperf_stream *sp)
 }
 
 
-/* iperf_sctp_send 
+/* iperf_sctp_send
  *
  * sends the data for SCTP
  */
@@ -97,7 +101,7 @@ iperf_sctp_send(struct iperf_stream *sp)
 
     r = Nwrite(sp->socket, sp->buffer, sp->settings->blksize, Psctp);
     if (r < 0)
-        return r;    
+        return r;
 
     sp->result->bytes_sent += r;
     sp->result->bytes_sent_this_interval += r;
@@ -166,7 +170,7 @@ iperf_sctp_listen(struct iperf_test *test)
     int s, opt, saved_errno;
 
     close(test->listener);
-   
+
     snprintf(portstr, 6, "%d", test->server_port);
     memset(&hints, 0, sizeof(hints));
     /*
@@ -193,13 +197,13 @@ iperf_sctp_listen(struct iperf_test *test)
     }
 
 #if defined(IPV6_V6ONLY) && !defined(__OpenBSD__)
-    if (res->ai_family == AF_INET6 && (test->settings->domain == AF_UNSPEC || 
+    if (res->ai_family == AF_INET6 && (test->settings->domain == AF_UNSPEC ||
         test->settings->domain == AF_INET6)) {
         if (test->settings->domain == AF_UNSPEC)
             opt = 0;
         else
             opt = 1;
-        if (setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, 
+        if (setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY,
 		       (char *) &opt, sizeof(opt)) < 0) {
 	    saved_errno = errno;
 	    close(s);
@@ -244,7 +248,7 @@ iperf_sctp_listen(struct iperf_test *test)
     }
 
     test->listener = s;
-  
+
     return s;
 #else
     i_errno = IENOSCTP;
