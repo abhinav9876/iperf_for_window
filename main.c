@@ -36,15 +36,18 @@
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
-#ifdef _WIN32 
+#ifdef _WIN32
  #include <winsock2.h>
 #else
  #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <netdb.h>
+
 #endif
 #include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
+
+
 
 #include "iperf.h"
 #include "iperf_api.h"
@@ -77,7 +80,7 @@ main(int argc, char **argv)
         fprintf(stderr, "setting priority to valid level\n");
         rc = setpriority(PRIO_PROCESS, 0, 0);
     }
-    
+
     /* setting the affinity of the process  */
     cpu_set_t cpu_set;
     int affinity = -1;
@@ -135,7 +138,7 @@ run(struct iperf_test *test)
 	iperf_got_sigend(test);
 
     /* Ignore SIGPIPE to simplify error handling */
-    signal(SIGPIPE, SIG_IGN);
+  //  signal(SIGPIPE, SIG_IGN);
 
     switch (test->role) {
         case 's':
@@ -176,7 +179,7 @@ run(struct iperf_test *test)
     }
 
     iperf_catch_sigend(SIG_DFL);
-    signal(SIGPIPE, SIG_DFL);
+  //  signal(SIGPIPE, SIG_DFL);
 
     return 0;
 }
